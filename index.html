@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control de ventas - Postres</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#7c3aed;
+      --primary-2:#a78bfa;
+      --danger:#dc2626;
+      --success:#059669;
+      --border:#e5e7eb;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#f8f5ff 0%, var(--bg) 100%);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px;
+    }
+    .hero{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .hero h1{
+      margin:0 0 6px 0;
+      font-size:28px;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+    }
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary); color:white}
+    .btn-outline{background:white; border:1px solid var(--border)}
+    .btn-danger{background:var(--danger); color:white}
+    .btn-small{padding:8px 12px; border-radius:10px; font-size:12px}
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .stat-title{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+    }
+    .stat-value{
+      font-size:28px;
+      font-weight:800;
+    }
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-top:16px;
+      background:var(--card);
+      padding:8px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      flex-wrap:wrap;
+    }
+    .tab-btn{
+      flex:1;
+      min-width:120px;
+      background:transparent;
+      border:none;
+      border-radius:12px;
+      padding:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .tab-btn.active{
+      background:#efe9ff;
+      color:#5b21b6;
+    }
+    .tab-content{display:none; margin-top:16px}
+    .tab-content.active{display:block}
+    .grid-2{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:16px;
+    }
+    .field{margin-bottom:14px}
+    label{
+      display:block;
+      margin-bottom:7px;
+      font-size:14px;
+      font-weight:700;
+    }
+    input, select, textarea{
+      width:100%;
+      padding:12px 14px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      font-size:15px;
+      background:white;
+    }
+    input[readonly]{background:#f9fafb}
+    .total-box{
+      background:#f9fafb;
+      border:1px dashed #d1d5db;
+      border-radius:16px;
+      padding:14px;
+      margin:10px 0 14px 0;
+    }
+    .total-box .small{color:var(--muted); font-size:13px}
+    .total-box .big{font-size:30px; font-weight:800}
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .item{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      background:white;
+    }
+    .item h4{
+      margin:0 0 6px 0;
+      font-size:17px;
+    }
+    .meta{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      background:#f3f4f6;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      margin-left:6px;
+    }
+    .right{
+      text-align:right;
+      white-space:nowrap;
+    }
+    .amount{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    .summary-row{
+      display:flex;
+      justify-content:space-between;
+      padding:12px 0;
+      border-bottom:1px solid var(--border);
+      gap:8px;
+    }
+    .summary-row:last-child{border-bottom:none}
+    .muted{color:var(--muted)}
+    .empty{
+      color:var(--muted);
+      text-align:center;
+      padding:24px 0;
+    }
+    .help-box p{margin:10px 0}
+    @media (max-width:900px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .grid-2{grid-template-columns:1fr}
+    }
+    @media (max-width:600px){
+      .stats{grid-template-columns:1fr}
+      .hero h1{font-size:22px}
+      .stat-value{font-size:24px}
+      .wrap{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>🍨 Control de ventas - Negocio de postres</h1>
+        <p>Archivo simple para registrar ventas, gastos y ver el resumen del día.</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="cargarDemo()">Cargar demo</button>
+        <button class="btn btn-danger" onclick="limpiarTodo()">Limpiar todo</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card">
+        <div class="stat-title">Ventas de hoy</div>
+        <div class="stat-value" id="statVentas">$0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Gastos de hoy</div>
+        <div class="stat-value" id="statGastos">$0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Ganancia estimada</div>
+        <div class="stat-value" id="statGanancia">$0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Producto más vendido</div>
+        <div class="stat-value" id="statTop" style="font-size:22px;">Sin ventas</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('ventas', this)">Ventas</button>
+      <button class="tab-btn" onclick="mostrarTab('gastos', this)">Gastos</button>
+      <button class="tab-btn" onclick="mostrarTab('resumen', this)">Resumen</button>
+    </div>
+
+    <div id="tab-ventas" class="tab-content active">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">Registrar venta</h3>
+          <div class="field">
+            <label>Producto</label>
+            <select id="producto" onchange="actualizarTamanos()"></select>
+          </div>
+          <div class="field">
+            <label>Tamaño</label>
+            <select id="tamano" onchange="actualizarPrecio()"></select>
+          </div>
+          <div class="field">
+            <label>Precio unitario</label>
+            <input id="precio" readonly />
+          </div>
+          <div class="field">
+            <label>Cantidad</label>
+            <input id="cantidad" type="number" min="1" value="1" oninput="actualizarTotal()" />
+          </div>
+          <div class="total-box">
+            <div class="small">Total de la venta</div>
+            <div class="big" id="totalVenta">$0</div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="registrarVenta()">Registrar venta</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0;">Ventas registradas hoy</h3>
+          <div id="listaVentas" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-gastos" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">Registrar gasto</h3>
+          <div class="field">
+            <label>Categoría</label>
+            <select id="categoriaGasto"></select>
+          </div>
+          <div class="field">
+            <label>Descripción</label>
+            <input id="descripcionGasto" placeholder="Ej. Compra de vasos" />
+          </div>
+          <div class="field">
+            <label>Monto</label>
+            <input id="montoGasto" type="number" min="0" placeholder="Ej. 120" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="registrarGasto()">Registrar gasto</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0;">Gastos registrados hoy</h3>
+          <div id="listaGastos" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-resumen" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">Resumen del día</h3>
+          <div class="summary-row"><span>Total de ventas</span><strong id="resVentas">$0</strong></div>
+          <div class="summary-row"><span>Total de gastos</span><strong id="resGastos">$0</strong></div>
+          <div class="summary-row"><span>Ganancia estimada</span><strong id="resGanancia">$0</strong></div>
+          <div class="summary-row"><span>Número de ventas</span><strong id="resNumVentas">0</strong></div>
+          <div class="summary-row"><span>Producto más vendido</span><strong id="resTop">Sin ventas</strong></div>
+        </div>
+
+        <div class="card help-box">
+          <h3 style="margin-top:0;">Qué podrás cambiar después</h3>
+          <p>• Productos y tamaños</p>
+          <p>• Precios reales</p>
+          <p>• Categorías de gastos</p>
+          <p>• Diseño y colores</p>
+          <p>• Reportes semanales o mensuales</p>
+          <p>• Exportación a Excel</p>
+          <p>• Inventario básico</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const PRODUCTOS = [
+  { nombre: "Postre", tamanos: [{nombre:"Chico", precio:45}, {nombre:"Grande", precio:70}] },
+  { nombre: "Esquite", tamanos: [{nombre:"Chico", precio:35}, {nombre:"Grande", precio:55}] },
+  { nombre: "Dorilocos", tamanos: [{nombre:"Único", precio:65}] },
+  { nombre: "Nachos", tamanos: [{nombre:"Único", precio:60}] },
+  { nombre: "Maruchan", tamanos: [{nombre:"Normal", precio:50}, {nombre:"Especial", precio:70}] }
+];
+
+const CATEGORIAS_GASTO = ["Ingredientes", "Desechables", "Transporte", "Gas", "Limpieza", "Otros"];
+
+function hoyTexto(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function horaActual(){
+  const d = new Date();
+  return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+function moneda(n){
+  return new Intl.NumberFormat("es-MX", {style:"currency", currency:"MXN"}).format(Number(n || 0));
+}
+function getVentas(){
+  return JSON.parse(localStorage.getItem("negocio_postres_ventas") || "[]");
+}
+function getGastos(){
+  return JSON.parse(localStorage.getItem("negocio_postres_gastos") || "[]");
+}
+function saveVentas(data){
+  localStorage.setItem("negocio_postres_ventas", JSON.stringify(data));
+}
+function saveGastos(data){
+  localStorage.setItem("negocio_postres_gastos", JSON.stringify(data));
+}
+function demoData(){
+  return {
+    ventas: [
+      {id:101, fecha:hoyTexto(), hora:"18:10", producto:"Esquite", tamano:"Grande", cantidad:2, precioUnitario:55, total:110},
+      {id:102, fecha:hoyTexto(), hora:"18:25", producto:"Postre", tamano:"Chico", cantidad:1, precioUnitario:45, total:45},
+      {id:103, fecha:hoyTexto(), hora:"19:05", producto:"Dorilocos", tamano:"Único", cantidad:2, precioUnitario:65, total:130},
+      {id:104, fecha:hoyTexto(), hora:"19:40", producto:"Maruchan", tamano:"Especial", cantidad:1, precioUnitario:70, total:70},
+      {id:105, fecha:hoyTexto(), hora:"20:15", producto:"Nachos", tamano:"Único", cantidad:1, precioUnitario:60, total:60}
+    ],
+    gastos: [
+      {id:201, fecha:hoyTexto(), categoria:"Ingredientes", descripcion:"Queso y mayonesa", monto:180},
+      {id:202, fecha:hoyTexto(), categoria:"Desechables", descripcion:"Vasos y cucharas", monto:95},
+      {id:203, fecha:hoyTexto(), categoria:"Transporte", descripcion:"Taxi de regreso", monto:70}
+    ]
+  }
+}
+
+function iniciarCatalogos(){
+  const selProd = document.getElementById("producto");
+  selProd.innerHTML = PRODUCTOS.map(p => `<option value="${p.nombre}">${p.nombre}</option>`).join("");
+
+  const selCat = document.getElementById("categoriaGasto");
+  selCat.innerHTML = CATEGORIAS_GASTO.map(c => `<option value="${c}">${c}</option>`).join("");
+
+  actualizarTamanos();
+}
+
+function actualizarTamanos(){
+  const prod = document.getElementById("producto").value;
+  const item = PRODUCTOS.find(p => p.nombre === prod);
+  const selTam = document.getElementById("tamano");
+  selTam.innerHTML = item.tamanos.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join("");
+  actualizarPrecio();
+}
+
+function actualizarPrecio(){
+  const prod = document.getElementById("producto").value;
+  const tam = document.getElementById("tamano").value;
+  const item = PRODUCTOS.find(p => p.nombre === prod);
+  const t = item.tamanos.find(x => x.nombre === tam);
+  document.getElementById("precio").value = moneda(t.precio);
+  actualizarTotal();
+}
+
+function actualizarTotal(){
+  const prod = document.getElementById("producto").value;
+  const tam = document.getElementById("tamano").value;
+  const cant = Number(document.getElementById("cantidad").value || 0);
+  const item = PRODUCTOS.find(p => p.nombre === prod);
+  const t = item.tamanos.find(x => x.nombre === tam);
+  document.getElementById("totalVenta").textContent = moneda(cant * t.precio);
+}
+
+function registrarVenta(){
+  const prod = document.getElementById("producto").value;
+  const tam = document.getElementById("tamano").value;
+  const cant = Number(document.getElementById("cantidad").value || 0);
+  if(cant <= 0){
+    alert("La cantidad debe ser mayor a 0.");
+    return;
+  }
+
+  const item = PRODUCTOS.find(p => p.nombre === prod);
+  const t = item.tamanos.find(x => x.nombre === tam);
+
+  const ventas = getVentas();
+  ventas.unshift({
+    id: Date.now(),
+    fecha: hoyTexto(),
+    hora: horaActual(),
+    producto: prod,
+    tamano: tam,
+    cantidad: cant,
+    precioUnitario: t.precio,
+    total: cant * t.precio
+  });
+  saveVentas(ventas);
+  document.getElementById("cantidad").value = 1;
+  actualizarTotal();
+  renderTodo();
+}
+
+function registrarGasto(){
+  const categoria = document.getElementById("categoriaGasto").value;
+  const descripcion = document.getElementById("descripcionGasto").value.trim() || "Sin descripción";
+  const monto = Number(document.getElementById("montoGasto").value || 0);
+
+  if(monto <= 0){
+    alert("El monto debe ser mayor a 0.");
+    return;
+  }
+
+  const gastos = getGastos();
+  gastos.unshift({
+    id: Date.now(),
+    fecha: hoyTexto(),
+    categoria,
+    descripcion,
+    monto
+  });
+  saveGastos(gastos);
+  document.getElementById("descripcionGasto").value = "";
+  document.getElementById("montoGasto").value = "";
+  renderTodo();
+}
+
+function eliminarVenta(id){
+  const ventas = getVentas().filter(v => v.id !== id);
+  saveVentas(ventas);
+  renderTodo();
+}
+function eliminarGasto(id){
+  const gastos = getGastos().filter(g => g.id !== id);
+  saveGastos(gastos);
+  renderTodo();
+}
+
+function cargarDemo(){
+  const d = demoData();
+  saveVentas(d.ventas);
+  saveGastos(d.gastos);
+  renderTodo();
+}
+function limpiarTodo(){
+  if(!confirm("¿Seguro que quieres borrar toda la información guardada en este navegador?")) return;
+  localStorage.removeItem("negocio_postres_ventas");
+  localStorage.removeItem("negocio_postres_gastos");
+  renderTodo();
+}
+
+function mostrarTab(nombre, btn){
+  document.querySelectorAll(".tab-content").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(x => x.classList.remove("active"));
+  document.getElementById("tab-" + nombre).classList.add("active");
+  btn.classList.add("active");
+}
+
+function renderTodo(){
+  const hoy = hoyTexto();
+  const ventas = getVentas();
+  const gastos = getGastos();
+
+  const ventasHoy = ventas.filter(v => v.fecha === hoy);
+  const gastosHoy = gastos.filter(g => g.fecha === hoy);
+
+  const totalVentas = ventasHoy.reduce((a,b) => a + Number(b.total), 0);
+  const totalGastos = gastosHoy.reduce((a,b) => a + Number(b.monto), 0);
+  const ganancia = totalVentas - totalGastos;
+
+  const topMap = {};
+  ventasHoy.forEach(v => {
+    topMap[v.producto] = (topMap[v.producto] || 0) + Number(v.cantidad);
+  });
+  const top = Object.entries(topMap).sort((a,b) => b[1] - a[1])[0]?.[0] || "Sin ventas";
+
+  document.getElementById("statVentas").textContent = moneda(totalVentas);
+  document.getElementById("statGastos").textContent = moneda(totalGastos);
+  document.getElementById("statGanancia").textContent = moneda(ganancia);
+  document.getElementById("statTop").textContent = top;
+
+  document.getElementById("resVentas").textContent = moneda(totalVentas);
+  document.getElementById("resGastos").textContent = moneda(totalGastos);
+  document.getElementById("resGanancia").textContent = moneda(ganancia);
+  document.getElementById("resNumVentas").textContent = ventasHoy.length;
+  document.getElementById("resTop").textContent = top;
+
+  const listaVentas = document.getElementById("listaVentas");
+  if(ventasHoy.length === 0){
+    listaVentas.innerHTML = '<div class="empty">Aún no hay ventas registradas.</div>';
+  }else{
+    listaVentas.innerHTML = ventasHoy.map(v => `
+      <div class="item">
+        <div>
+          <h4>${v.producto}<span class="badge">${v.tamano}</span></h4>
+          <div class="meta">${v.hora} · Cantidad: ${v.cantidad} · ${moneda(v.precioUnitario)} c/u</div>
+        </div>
+        <div class="right">
+          <div class="amount">${moneda(v.total)}</div>
+          <button class="btn btn-outline btn-small" onclick="eliminarVenta(${v.id})">Eliminar</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const listaGastos = document.getElementById("listaGastos");
+  if(gastosHoy.length === 0){
+    listaGastos.innerHTML = '<div class="empty">Aún no hay gastos registrados.</div>';
+  }else{
+    listaGastos.innerHTML = gastosHoy.map(g => `
+      <div class="item">
+        <div>
+          <h4>${g.categoria}</h4>
+          <div class="meta">${g.descripcion}</div>
+        </div>
+        <div class="right">
+          <div class="amount">${moneda(g.monto)}</div>
+          <button class="btn btn-outline btn-small" onclick="eliminarGasto(${g.id})">Eliminar</button>
+        </div>
+      </div>
+    `).join("");
+  }
+}
+
+(function iniciar(){
+  iniciarCatalogos();
+
+  if(getVentas().length === 0 && getGastos().length === 0){
+    const d = demoData();
+    saveVentas(d.ventas);
+    saveGastos(d.gastos);
+  }
+
+  renderTodo();
+})();
+</script>
+</body>
+</html>
